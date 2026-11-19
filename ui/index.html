@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Hub</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/review.css">
+  <link rel="stylesheet" href="/thumbstudio.css">
+  <link rel="stylesheet" href="/vendor/xterm.css">
+  <link rel="stylesheet" href="/crew-page.css">
+  <link rel="stylesheet" href="/scripts-page.css">
+  <link rel="stylesheet" href="/director-chat.css">
+  <link rel="stylesheet" href="/lumen.css">
+  <link rel="stylesheet" href="/welcome.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap">
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" viewBox="0 0 128 128"><rect width="128" height="128" rx="30" fill="#0E141E"/><path d="M38 28 104 64 38 100Z" fill="#F5F8FF"/><path d="M60 18 72 110" stroke="#0E141E" stroke-width="18" stroke-linecap="round"/><path d="M60 18 72 110" stroke="#4C9AFF" stroke-width="9" stroke-linecap="round"/></svg>
+        Edit Hub
+      </div>
+      <nav class="nav">
+        <a href="#/crew" data-nav="crew" title="Your director and crew">Crew <span class="count" id="crewCount" hidden></span></a>
+        <a href="#/scripts" data-nav="scripts" title="Every script the crew wrote, with its video">Scripts</a>
+        <a href="#/" data-nav="projects" title="Projects">Projects <span class="count newout" id="newOutP" hidden title="New unwatched render output"></span></a>
+        <a href="#/renders" data-nav="renders" title="Renders">Renders <span class="count" id="renderCount" hidden></span><span class="count newout" id="newOutR" hidden title="New unwatched render output"></span></a>
+        <a href="#/outputs" data-nav="outputs" title="Recent renders">Recent renders <span class="count newout" id="newOutO" hidden title="New unwatched render"></span></a>
+        <a href="#/thumbstudio" data-nav="thumbstudio" title="Thumbnail">Thumbnail</a>
+        <a href="#/skills" data-nav="skills" title="Skills">Skills</a>
+        <a href="#/disk" data-nav="disk" title="Disk">Disk</a>
+        <a href="#/settings" data-nav="settings" title="Settings">Settings</a>
+        <a href="#/welcome" data-nav="welcome" title="The first-run steps: requirements, your style, your brand, your crew">Setup</a>
+      </nav>
+      <div class="convbusy" id="convBusy" hidden></div>
+      <div class="live" id="live">…</div>
+    </aside>
+    <main class="main" id="main"></main>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

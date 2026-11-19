@@ -1,0 +1,160 @@
+<title>Edit Hub Architecture</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* layout: one reading column with wide bands for diagrams and the module map; Edit Hub's own black, white and blue */
+:root {
+  --bg: #070A10; --panel: #0E141E; --raise: #152030; --rule: #1B2636; --ink: #F5F8FF; --ink-2: #C9D4E6; --muted: #8E9DB6;
+  --blue: #4C9AFF; --sky: #38BDF8; --ok: #34D399; --warn: #FBBF24; --bad: #F87171;
+  --display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif; --body: "DM Sans", ui-sans-serif, system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+html, body { overflow-x: clip; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--body); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 80px; }
+main { max-width: 1040px; margin-inline: auto; display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.02em; text-wrap: balance; margin: 0; overflow-wrap: break-word; min-width: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.05rem; }
+p { margin: 0; max-width: 68ch; color: var(--ink-2); }
+section { display: grid; gap: 16px; }
+.lede { font-size: 1.1rem; color: var(--ink-2); }
+.mark { display: flex; align-items: center; gap: 12px; font-family: var(--display); font-weight: 600; font-size: 1.1rem; }
+.mark svg { width: 34px; height: 34px; }
+code, .mono { font-family: var(--mono); font-size: 0.85em; color: var(--sky); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.cell { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.cell p { font-size: 0.92rem; }
+.tag { justify-self: start; font-size: 0.75rem; padding: 1px 10px; border-radius: 999px; border: 1px solid currentColor; color: var(--muted); }
+.tag.new { color: var(--blue); } .tag.risk { color: var(--warn); }
+.diagram { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; overflow-x: auto; }
+pre.mermaid { margin: 0; background: transparent; color: var(--ink); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; background: var(--panel); }
+tr:last-child td { border-bottom: 0; }
+ol.steps { margin: 0; padding-left: 1.3em; display: grid; gap: 8px; color: var(--ink-2); max-width: 75ch; }
+ol.steps b { color: var(--ink); }
+a { color: var(--blue); }
+a:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+.weak { border-left: 3px solid var(--warn); }
+footer p { font-size: 0.85rem; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<main>
+  <header style="display:grid;gap:16px">
+    <div class="mark"><svg viewBox="0 0 128 128" aria-hidden="true"><rect width="128" height="128" rx="30" fill="#0E141E"/><path d="M38 28 104 64 38 100Z" fill="#F5F8FF"/><path d="M60 18 72 110" stroke="#0E141E" stroke-width="18" stroke-linecap="round"/><path d="M60 18 72 110" stroke="#4C9AFF" stroke-width="9" stroke-linecap="round"/></svg>Edit Hub</div>
+    <h1>How Edit Hub works</h1>
+    <p class="lede">A local app where you talk to a Director, and a crew of Claude Code agents turns a raw recording into a finished, posted video. Everything runs on your computer with your own Claude plan. This page maps every part, so you can see what to improve.</p>
+  </header>
+
+  <section>
+    <h2>The big picture</h2>
+    <p>Three layers. The browser page is only a window. The Edit Hub server (Node, on 127.0.0.1) owns the files, the queue and the Director. Claude Code does all the thinking and editing, as one Director process with crew agents under it.</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart LR
+  U([You: voice, text, a dropped video]) --> UI[Browser page<br/>vanilla JS, no build]
+  UI <-- "HTTP + live events (SSE)" --> S[Edit Hub server<br/>Node 22, loopback only]
+  S -- "stream-json, one process per conversation" --> D[Director<br/>Claude Code -p]
+  D -- "Agent tool, in the background" --> A1[editor<br/>clean cut, edit, captions, own check]
+  D --> A2[writer<br/>ideas, scripts, hooks]
+  A1 -- "skills + ffmpeg + Python" --> F[(Workspace<br/>films, inbox, outputs)]
+  A1 -- "hub_live (MCP)" --> S
+  D -- "social-uploader skill + Claude in Chrome" --> W[YouTube, Instagram, Facebook]
+  S -- "render queue" --> R[Headless Chrome + ffmpeg<br/>MP4 renders]
+</pre></div>
+  </section>
+
+  <section>
+    <h2>The stack</h2>
+    <div class="grid">
+      <div class="cell"><h3>Server</h3><p>TypeScript on Node 22.13+, with no build step: Node strips the types as each file loads (<code>server/ts.js</code>), and the installer stays plain JavaScript so it runs on any Node 22. No framework. One loopback HTTP server with Server-Sent Events for live updates. It refuses any page that is not its own.</p></div>
+      <div class="cell"><h3>Page</h3><p>TypeScript modules the server hands to the browser with their types removed, and CSS tokens. One theme file sets every colour and font; each page is a function that draws into the main area.</p></div>
+      <div class="cell"><h3>Agents</h3><p>Claude Code: the Director as <code>claude -p --input-format stream-json</code>, crew agents as its subagents (Sonnet unless an agent names a model), skills as Markdown folders.</p></div>
+      <div class="cell"><h3>Media</h3><p>ffmpeg for cutting, mixing and encoding; faster-whisper (Python, GPU when there is one) for transcripts and the microphone; films are HTML (HyperFrames) rendered to MP4.</p></div>
+      <div class="cell"><h3>Tools for agents</h3><p>An MCP server (<code>hub_live</code>, <code>hub_notes</code>, <code>hub_render</code>, <code>hub_project</code>…) so agents open previews, read your notes and queue renders.</p></div>
+      <div class="cell"><h3>Terminal</h3><p>node-pty runs an interactive Claude Code for the "Director in a terminal" view, the only place Code Mode works.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The standard job: raw recording in, finished video out</h2>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor You
+  participant Hub as Edit Hub
+  participant Dir as Director
+  participant Ed as editor
+  You->>Hub: drop the raw video, say what you want
+  Hub->>Hub: copy it to the inbox, add its path to the message
+  Hub->>Dir: one message (your words and the video together)
+  Dir->>Ed: one brief: footage, script, style, every preference
+  Ed->>Ed: clean cut, edit in your style, captions, sound, own check
+  Ed->>Hub: hub_live (live preview, no render)
+  Dir-->>You: ready to review in Projects
+  You->>Hub: notes on frames, then Render
+  Hub->>Ed: your notes (the editor still has the film's context)
+  You->>Dir: schedule it Friday 18:00
+  Dir->>Dir: post from your Chrome (social-uploader)
+</pre></div>
+  </section>
+
+  <section>
+    <h2>How the crew learns from your fixes</h2>
+    <ol class="steps">
+      <li><b>You correct something</b> in the chat or as a note on a frame in the review page.</li>
+      <li><b>The agent that made it fixes it</b> and adds one dated line under "Standing notes" in its own file: what to do from now on, and why.</li>
+      <li><b>Look fixes go to the style skill too</b> ("Notes from the user"), so every agent using that style gets them.</li>
+      <li><b>Every later job starts by reading those notes</b>, so you never repeat yourself. Agents with <code>memory: project</code> also keep their own memory folder.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Server modules</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>File</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>server/hub.js</code></td><td>The HTTP server, routes, live events, the loopback-only guard, idle shutdown.</td></tr>
+        <tr><td><code>server/director.js</code></td><td>Runs the Director, turns its stream into chat events, tracks background agents, cost per reply, attachments.</td></tr>
+        <tr><td><code>server/crew.js</code></td><td>Crew folders, agents and their skills, the isolated kit (only the Director's own skills and MCP servers).</td></tr>
+        <tr><td><code>server/onboarding.js</code></td><td>First run: writes channel.md and brand.md, sets agents aside, asks the Director to write your style skill.</td></tr>
+        <tr><td><code>server/requirements.js</code></td><td>Checks Claude Code, sign-in, ffmpeg, Python, the voice model and Claude in Chrome; Quick setup.</td></tr>
+        <tr><td><code>server/usage.js</code></td><td>Tokens and cost per conversation and per agent, read from Claude Code's own logs.</td></tr>
+        <tr><td><code>server/terminal.js</code></td><td>The interactive Director in a terminal, accounts, Code Mode.</td></tr>
+        <tr><td><code>server/voice.js</code> + <code>whisper_worker.py</code></td><td>The microphone: local Whisper, English unless set otherwise.</td></tr>
+        <tr><td><code>server/scan.js</code>, <code>live.js</code>, <code>notes.js</code></td><td>Find films, serve the live preview, keep review notes on frames.</td></tr>
+        <tr><td><code>server/jobs.js</code>, <code>guard.js</code></td><td>The render queue (one at a time) and render protection (CPU and RAM).</td></tr>
+        <tr><td><code>server/mcp.js</code>, <code>tools.js</code>, <code>cli.js</code></td><td>The <code>hub_*</code> tools agents call.</td></tr>
+        <tr><td><code>server/history.js</code>, <code>accounts.js</code>, <code>harness.js</code></td><td>Past conversations, several Claude accounts, other coding agents (OpenCode, Qwen Code).</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Where things live</h2>
+    <div class="grid">
+      <div class="cell"><span class="tag">app</span><h3>The Edit Hub folder</h3><p>The code, <code>crews/starter</code> (the crew every new user gets, with its bundled skills) and <code>data/</code> (settings, notes, jobs; never published).</p></div>
+      <div class="cell"><span class="tag">yours</span><h3>The workspace</h3><p><code>films/</code> (one folder per film), <code>inbox/</code> (dropped videos), <code>outputs/</code> (renders), <code>crew/</code> (your Director and agents).</p></div>
+      <div class="cell"><span class="tag">yours</span><h3>The crew folder</h3><p><code>CLAUDE.md</code> (the Director's prompt), <code>channel.md</code>, <code>brand.md</code>, <code>.claude/agents</code>, <code>.claude/skills</code> (your style skill lives here).</p></div>
+      <div class="cell"><span class="tag">Claude Code</span><h3>Conversation logs</h3><p><code>~/.claude/projects/&lt;crew folder&gt;</code>: every conversation and agent. Edit Hub reads them for history, costs and agent status.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What to improve next</h2>
+    <p>The honest list of weak spots, with where to look.</p>
+    <div class="grid">
+      <div class="cell weak"><span class="tag risk">by design</span><h3>A small crew</h3><p>Two agents (editor, writer) so nothing is lost between hand-offs and no tokens go to agents re-reading the same files. A fresh-eyes reviewer is worth adding only when you want one; ask the Director.</p></div>
+      <div class="cell weak"><span class="tag risk">quality</span><h3>Your style is a first draft</h3><p>The Director writes the style skill from a few clicks. The real look comes from your fixes over the first videos; a library of tested style starters would help.</p></div>
+      <div class="cell weak"><span class="tag risk">fragile</span><h3>Uploading drives web pages</h3><p>The uploader clicks YouTube's and Meta's own pages. When they change their layout, it breaks until its skill is updated. TikTok does not work.</p></div>
+      <div class="cell weak"><span class="tag risk">cost</span><h3>Every edit uses your Claude plan</h3><p>Crew agents run on Sonnet by default and every reply shows its cost, but a long edit with many fix rounds still adds up. The edit-plan step and fix limits help.</p></div>
+      <div class="cell weak"><span class="tag risk">platforms</span><h3>Windows first</h3><p>macOS and Linux paths exist and have tests, but they have not run on real machines yet.</p></div>
+      <div class="cell weak"><span class="tag risk">optional skills</span><h3>Some skills cannot ship</h3><p>onetake (non-commercial licence), real-sfx (sound licences unknown) and others are not bundled: users install them themselves.</p></div>
+    </div>
+  </section>
+
+  <footer><p>Edit Hub is based on VideoHub by its contributors (MIT licence). The cut pipeline is Nate Herk's herk-edit-kit (MIT). Built and tested with 375 automated tests and a TypeScript type check.</p></footer>
+</main>

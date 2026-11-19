@@ -1,0 +1,22 @@
+// npm test: every node:test suite, with VideoHub's default folders pointed at .test-tmp (tests never create
+// Documents\VideoHub on the machine running them).
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const dirs = ['server', 'server/thumbstudio', 'ui', 'ui/review', 'scripts'];
+const files = dirs.flatMap(d => fs.readdirSync(path.join(root, d)).filter(f => f.endsWith('.test.js')).map(f => path.join(d, f)));
+const base = path.join(root, '.test-tmp', 'base');
+fs.mkdirSync(base, { recursive: true });
+const fakeHome = path.join(root, '.test-tmp', 'home'), temp = path.join(root, '.test-tmp', 'temp');
+for (const d of [fakeHome, temp]) fs.mkdirSync(d, { recursive: true });
+const r = spawnSync(process.execPath, ['--import', './server/ts.js', '--test', ...files], { cwd: root, stdio: 'inherit', env: { ...process.env, HOME: fakeHome, USERPROFILE: fakeHome, APPDATA: path.join(fakeHome, 'AppData', 'Roaming'), LOCALAPPDATA: path.join(fakeHome, 'AppData', 'Local'), XDG_CONFIG_HOME: path.join(fakeHome, '.config'), XDG_DATA_HOME: path.join(fakeHome, '.local', 'share'), TMP: temp, TEMP: temp, TMPDIR: temp, VIDEOHUB_NO_WINDOW: '1', VIDEOHUB_BASE_DIR: base, VIDEOHUB_DATA_DIR: path.join(root, '.test-tmp', 'data') } });
+// then the type check (developer installs only: TypeScript is a dev dependency, never needed to run Edit Hub)
+const tsc = path.join(root, 'node_modules', 'typescript', 'bin', 'tsc');
+if (r.status === 0 && fs.existsSync(tsc)) {
+  const t = spawnSync(process.execPath, [tsc, '-p', '.'], { cwd: root, stdio: 'inherit' });
+  if (t.status === 0) console.log('# typecheck ok'); else { console.log('# typecheck failed'); process.exit(t.status ?? 1); }
+}
+process.exit(r.status ?? 1);

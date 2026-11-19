@@ -1,0 +1,83 @@
+/* Hallmark · shape: app screen · genre: atmospheric · theme: Lumen (deal 3/3, seed local-studio-where-video-39c7·400794ef·2026-11-15·r0) · redesign: restyle
+ * nav: kept (Edit Hub's sidebar, Crew first) · signature: the crew board on the Crew page · states: loading, empty, error, full
+ * axes: dark/roman-serif/warm · posture: restrained · contrast: pass · lumen: night, surfaces moved to warm neutral by request · v2.0.0 */
+/* Hallmark · pre-emit critique: P2 H2 E3 S3 R2 V3 · weakest: R (the review and thumbnail pages keep ~90 literal colours of their own), remapped through Edit Hub's tokens rather than rewritten */
+/* Hallmark · answered 38iii: no hero verb in an app; the rose marks recording only */
+@import url("./lumen-tokens.css");
+
+/* local addition: Edit Hub restyled in Lumen. Edit Hub's own tokens now point at Lumen's, so every page changes
+   look without its layout or code changing. Loaded after style.css, review.css and thumbstudio.css. */
+/* Edit Hub: black, white and blue. paper = the page, side = sidebars (darker), paper-2/3 = raised surfaces. One blue
+   (accent) for actions, links and focus, with dark ink on it (7.5:1); a sky blue as the second colour. */
+:root {
+  --color-paper: #070A10; --color-side: #04060A; --color-paper-2: #0E141E; --color-paper-3: #152030;
+  --color-ink: #F5F8FF; --color-ink-2: #C9D4E6; --color-muted: #8E9DB6; --color-faint: #64738C;
+  --color-rule: #1B2636; --color-rule-2: #28374E;
+  --color-accent: #4C9AFF; --color-accent-2: #38BDF8; --color-accent-ink: #04060A; --color-focus: #9CC5FF;
+  --color-live: #34D399; --color-error: #F87171;
+  --shadow-card: 0 18px 48px -24px rgb(0 0 0 / 0.85);
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif; --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-outlier: "JetBrains Mono", ui-monospace, monospace; --display-weight: 600; --tracking-display: -0.02em;
+}
+:root {
+  --bg: var(--color-paper); --panel: var(--color-side); --card: var(--color-paper-2); --card2: var(--color-paper-3);
+  --row: var(--color-paper-2); --sel: color-mix(in oklab, var(--color-accent) 16%, var(--color-paper-3));
+  --border: var(--color-rule); --border2: var(--color-rule-2); --track: var(--color-rule);
+  --text: var(--color-ink); --muted: var(--color-muted); --dim: var(--color-faint);
+  --accent: var(--color-accent); --accent-bg: color-mix(in oklab, var(--color-accent) 15%, var(--color-paper));
+  --green: var(--color-live); --green-bg: color-mix(in oklab, var(--color-live) 14%, var(--color-paper));
+  --red: var(--color-error); --red-bg: color-mix(in oklab, var(--color-error) 15%, var(--color-paper));
+  --blue: var(--color-accent-2); --blue-bg: color-mix(in oklab, var(--color-accent-2) 14%, var(--color-paper));
+  --yellow: oklch(86% 0.11 92); --yellow-bg: color-mix(in oklab, oklch(86% 0.11 92) 13%, var(--color-paper));
+  --violet: oklch(78% 0.1 305); --violet-bg: color-mix(in oklab, oklch(78% 0.1 305) 15%, var(--color-paper));
+  --r: var(--radius-card); --font: var(--font-body); --mono: var(--font-outlier);
+}
+html, body { overflow-x: clip; }
+body { font-family: var(--font-body); background: var(--color-paper); color: var(--color-ink); -webkit-font-smoothing: antialiased; }
+::selection { background: color-mix(in oklab, var(--color-accent) 24%, transparent); color: var(--color-ink); }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+/* the shell: a second neutral for the sidebar, the wordmark in the display face, lowercase nav */
+.side { background: var(--color-side); border-right: var(--rule-hair) solid var(--color-rule); }
+.logo svg rect { fill: var(--color-paper-2); } .logo svg path:first-of-type { fill: var(--color-ink); }   /* the mark: a white play cut by a blue line (its stroke colours are in the SVG) */
+.logo { font-family: var(--font-display); font-weight: var(--display-weight); font-size: 1.35rem; letter-spacing: var(--tracking-display); }
+.nav a { color: var(--color-muted); border-radius: var(--radius-card); transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
+.nav a:hover { background: var(--color-paper-3); color: var(--color-ink); }
+.nav a.on { background: var(--color-paper-3); color: var(--color-ink); box-shadow: inset 2px 0 0 var(--color-accent); }
+.nav .count { background: var(--accent-bg); color: var(--color-accent); font-family: var(--font-outlier); font-size: var(--text-xs); }
+.nav .count.newout { background: var(--green-bg); color: var(--color-live); }
+.side .live { border-top-color: var(--color-rule); font-family: var(--font-outlier); font-size: var(--text-xs); }
+
+/* page heads in Instrument Serif, lowercase; section heads stay the body face so dense pages keep their rhythm */
+.page:not(.cw) > h1, .page:not(.cw) > .row > h1, .page:not(.cw) h1:first-child { font-family: var(--font-display); font-weight: var(--display-weight); font-size: var(--text-3xl); letter-spacing: var(--tracking-display); line-height: 1.05; }
+h2 { font-weight: 500; }
+
+/* controls: hairline pills, one brass primary */
+button { border-radius: var(--radius-pill); border: var(--rule-hair) solid var(--color-rule-2); background: transparent; color: var(--color-ink); padding: var(--space-2xs) var(--space-sm); min-height: 32px; transition: background-color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
+button:hover { background: var(--color-paper-3); border-color: var(--color-rule-2); }
+button:active { background: var(--color-paper-2); }
+button.primary { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-accent-ink); font-weight: 500; }
+button.primary:hover { background: color-mix(in oklab, var(--color-accent) 88%, var(--color-ink)); filter: none; }
+button.ghost { border-color: transparent; }
+button.ghost:hover { background: var(--color-paper-3); }
+button.danger { color: var(--color-error); }
+button:disabled, button[disabled] { opacity: 0.45; cursor: not-allowed; }
+select, input[type=text], input[type=search], input:not([type]), textarea { background: var(--color-paper); border: var(--rule-hair) solid var(--color-rule-2); border-radius: var(--radius-card); color: var(--color-ink); }
+select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+input[type=checkbox] { accent-color: var(--color-accent); }
+a { color: var(--color-ink-2); text-decoration-color: var(--color-rule-2); }
+a:hover { color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-accent); }
+
+/* surfaces: hairline wells, depth by lightness */
+.panel, .tile { color: var(--color-ink); background: var(--color-paper-2); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-card); }
+.tile .v { font-variant-numeric: tabular-nums; }
+.pill { border-radius: var(--radius-pill); font-family: var(--font-body); }
+table.t th { color: var(--color-muted); font-weight: 400; border-bottom-color: var(--color-rule-2); }
+table.t td { border-bottom-color: var(--color-rule); font-variant-numeric: tabular-nums; }
+.toast > div { background: var(--color-paper-3); border-color: var(--color-rule-2); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+.toast .err { border-color: var(--color-error); }
+.modal-bg { background: color-mix(in oklab, var(--color-paper) 70%, transparent); }
+.modal { background: var(--color-paper-2); border-color: var(--color-rule-2); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+::-webkit-scrollbar-thumb { background: var(--color-rule-2); }
+
+@media (prefers-reduced-motion: reduce) { .nav a, button { transition: none; } }

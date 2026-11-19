@@ -1,0 +1,12 @@
+# your machine, your data: never published
+node_modules/
+data/
+.test-tmp/
+*.log
+.env
+.env.*
+# a personal crew lives in its own folder (the crew.dir setting), never inside the app
+crews/*
+!crews/starter/
+# your local Claude Code settings (the test instance launch config)
+.claude/

@@ -1,0 +1,12 @@
+<!doctype html><meta charset="utf-8"><title>relay</title>
+<p id="s">loading…</p>
+<script>
+// Hands a local file to the tab that opened this page. Only posts to these origins.
+const ALLOWED = ["https://business.facebook.com", "https://studio.youtube.com", "https://www.tiktok.com"]
+const q = new URLSearchParams(location.search), name = q.get("f"), origin = q.get("o")
+if (!ALLOWED.includes(origin) || !window.opener) { s.textContent = "refused" } else {
+  fetch("/" + encodeURIComponent(name)).then(r => { if (!r.ok) throw new Error(r.status); return r.blob() })
+    .then(b => { opener.postMessage({ relay: true, file: new File([b], name, { type: b.type || "video/mp4" }) }, origin); s.textContent = "sent"; setTimeout(close, 1000) })
+    .catch(e => { opener.postMessage({ relay: true, error: String(e) }, origin); s.textContent = "error " + e })
+}
+</script>

@@ -1,0 +1,51 @@
+/* Edit Hub's first run (ui/welcome.js): every colour and font through the theme tokens; the palette and font pickers show
+   the user's own choices, which are data, not theme. */
+.wl { max-width: 1120px; margin-inline: auto; padding-block: var(--space-lg); display: grid; gap: var(--space-md); }
+.wl-head h1 { font-family: var(--font-display); font-weight: var(--display-weight); font-size: var(--text-3xl); letter-spacing: var(--tracking-display); margin: 0; overflow-wrap: break-word; min-width: 0; }
+.wl-head p, .wl-sub { color: var(--color-muted); margin: var(--space-2xs) 0 0; }
+.wl h2 { font-family: var(--font-display); font-weight: var(--display-weight); font-size: var(--text-xl); margin: 0; }
+.wl h3 { font-size: var(--text-md); font-weight: 600; margin: var(--space-md) 0 var(--space-xs); }
+.wl-rail { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+.wl-rail button { background: transparent; border: var(--rule-hair) solid var(--color-rule-2); border-radius: var(--radius-pill); padding: var(--space-2xs) var(--space-sm); color: var(--color-muted); }
+.wl-rail .is-on button { border-color: var(--color-accent); color: var(--color-ink); }
+.wl-rail .is-done button { color: var(--color-ink-2); }
+.wl-body { background: var(--color-paper-2); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-card); padding: var(--space-lg); display: grid; gap: var(--space-xs); }
+.wl-nav { display: flex; justify-content: space-between; }
+.wl-split { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: var(--space-lg); align-items: start; }
+.wl-aside { position: sticky; top: var(--space-md); display: grid; gap: var(--space-xs); justify-items: center; }
+.wl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--space-xs); }
+.wl-choice { text-align: start; padding: var(--space-sm); border-radius: var(--radius-card); background: var(--color-paper-3); border: var(--rule-hair) solid var(--color-rule-2); color: var(--color-ink); min-height: 44px; transition: border-color var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out); }
+.wl-choice:hover { border-color: var(--color-muted); }
+.wl-choice.is-on { border-color: var(--color-accent); background: color-mix(in oklab, var(--color-accent) 14%, var(--color-paper-3)); }
+.wl-choice span { display: grid; gap: var(--space-2xs); }
+.wl-choice small { color: var(--color-muted); font-size: var(--text-xs); line-height: 1.4; }
+.wl-swatches { display: flex !important; gap: 0; }
+.wl-swatches i { width: 28px; height: 22px; border: var(--rule-hair) solid var(--color-rule); }
+.wl-swatches i:first-child { border-radius: 6px 0 0 6px; } .wl-swatches i:last-child { border-radius: 0 6px 6px 0; }
+.wl-chips { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+.wl-chips .wl-choice { min-height: 36px; padding: var(--space-2xs) var(--space-sm); border-radius: var(--radius-pill); }
+.wl-input { width: 100%; background: var(--color-paper-3); border: var(--rule-hair) solid var(--color-rule-2); border-radius: var(--radius-card); padding: var(--space-xs) var(--space-sm); color: var(--color-ink); font: inherit; }
+.wl-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-sm); }
+.wl-field { display: grid; gap: var(--space-2xs); }
+.wl-field span { font-size: var(--text-sm); color: var(--color-ink-2); }
+.wl-list { display: grid; gap: var(--space-xs); }
+.wl-req, .wl-agent { display: flex; gap: var(--space-sm); align-items: flex-start; padding: var(--space-sm); border-radius: var(--radius-card); background: var(--color-paper-3); border: var(--rule-hair) solid var(--color-rule); }
+.wl-req p, .wl-agent p { margin: var(--space-3xs) 0 0; color: var(--color-muted); font-size: var(--text-sm); }
+.wl-badge { flex: none; font-size: var(--text-xs); padding: 2px var(--space-xs); border-radius: var(--radius-pill); border: var(--rule-hair) solid currentColor; }
+.wl-req.is-ok .wl-badge { color: var(--color-live); } .wl-req.is-bad .wl-badge { color: var(--color-error); } .wl-req.is-opt .wl-badge { color: var(--color-muted); }
+.wl-agent.is-on { border-color: color-mix(in oklab, var(--color-accent) 50%, var(--color-rule)); }
+.wl-agent input { margin-top: 3px; }
+.wl-row { display: flex; flex-wrap: wrap; gap: var(--space-xs); align-items: center; margin-top: var(--space-xs); }
+.wl-link { color: var(--color-accent); }
+.wl-small { font-size: var(--text-xs); color: var(--color-muted); margin: 0; }
+.wl-bad { color: var(--color-error); }
+/* the live preview: a 9:16 phone in the user's chosen palette and fonts */
+.wl-phone { width: 220px; aspect-ratio: 9 / 16; border-radius: 22px; background: var(--p0); border: 3px solid var(--color-rule-2); padding: var(--space-md); display: grid; align-content: space-between; position: relative; overflow: hidden; }
+.wl-phone::after { content: ""; position: absolute; inset: auto -30% -20% auto; width: 70%; aspect-ratio: 1; border-radius: 50%; background: var(--p1); opacity: .9; }
+.wl-phone-tag { font-family: var(--bf); font-size: 11px; color: var(--p3); background: color-mix(in oklab, var(--p1) 70%, transparent); justify-self: start; padding: 2px 8px; border-radius: 999px; position: relative; z-index: 1; }
+.wl-phone-cap { font-family: var(--hf); font-size: 26px; line-height: 1.05; color: var(--p3); position: relative; z-index: 1; }
+.wl-phone-cap b { color: var(--p2); }
+.wl-phone-sub { font-family: var(--bf); font-size: 12px; color: var(--p3); opacity: .8; position: relative; z-index: 1; }
+.wl button:focus-visible, .wl a:focus-visible, .wl input:focus-visible, .wl textarea:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; transition: none; }
+@media (max-width: 860px) { .wl-split, .wl-form { grid-template-columns: minmax(0, 1fr); } .wl-aside { position: static; } }
+@media (prefers-reduced-motion: reduce) { .wl-choice { transition: none; } }
